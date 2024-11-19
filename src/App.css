@@ -1,42 +1,193 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* Estilo Global */
+body {
+  font-family: "Roboto", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: url("https://img.pikbest.com/wp/202408/background-textures-black-crumpled-embossed-with-a-texture_9964682.jpg!w700wp")
+    no-repeat center center fixed;
+  background-size: cover; 
+  color: #f5f5f5; 
+}
+
+/* Título (Header) */
+header {
   text-align: center;
+  padding: 20px 0;
+  background-color: rgba(0, 0, 0, 0.7); 
+  color: #ffffff; 
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+header h1 {
+  font-size: 2.5rem;
+  margin: 0;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+/* Botones */
+button {
+  background-color: #4caf50; 
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  margin-bottom: 10px; 
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+}
+
+button:focus {
+  outline: none;
+}
+
+/* Listas y Elementos */
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  background-color: rgba(44, 44, 44, 0.8); 
+  border-radius: 10px;
+  padding: 15px;
+  margin: 10px auto;
+  max-width: 600px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+li img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 5px;
+  margin-right: 15px;
+}
+
+li:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Espaciado y Centrado */
+div {
+  padding-bottom: 30px; 
+}
+
+form {
+  margin-top: 20px; 
+}
+
+/* Ajuste entre botones */
+button + button {
+  margin-top: 10px; 
+}
+
+/* Estilo para el botón de agregar herramienta */
+.add-tool-button {
+  background-color: #4caf50; 
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.add-tool-button:hover {
+  background-color: #45a049; 
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+}
+
+.add-tool-button:focus {
+  outline: none;
+  box-shadow: 0 0 4px #ffffff;
+}
+
+
+/* Estilos Responsive */
+
+/* Para pantallas pequeñas (smartphones) */
+@media (max-width: 600px) {
+  body {
+    font-size: 14px; 
   }
-  to {
-    transform: rotate(360deg);
+
+  header {
+    font-size: 1.5rem; 
+  }
+
+  button {
+    width: 90%; 
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  form {
+    width: 100%; 
+  }
+
+  input, textarea {
+    width: 95%; 
+  }
+
+  ul {
+    padding: 0;
+  }
+
+  li {
+    flex-direction: column; 
+    align-items: flex-start; 
+  }
+
+  li img {
+    margin-bottom: 10px; 
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+/* Para pantallas medianas (tablets) */
+@media (max-width: 1024px) {
+  body {
+    font-size: 16px;
+  }
+
+  header {
+    font-size: 2rem; 
+  }
+
+  ul {
+    padding: 0;
+  }
+
+  li {
+    flex-direction: row; 
+    align-items: center;
+  }
+
+  .grid-view div {
+    padding: 10px; 
   }
 }
 
-.card {
-  padding: 2em;
+/* Ajustes para la vista de cuadros */
+@media (max-width: 1024px) {
+  .grid-view {
+    grid-template-columns: repeat(2, 1fr); 
+  }
 }
 
-.read-the-docs {
-  color: #888;
+@media (max-width: 600px) {
+  .grid-view {
+    grid-template-columns: 1fr; 
+  }
 }

@@ -24,10 +24,9 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
 }
 
 h1 {
@@ -36,22 +35,28 @@ h1 {
 }
 
 button {
+  all: unset; 
+  display: inline-block;
+  padding: 10px 20px;
   border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  border: 2px solid transparent;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  background-color: #4caf50; 
+  color: white;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.3s ease;
 }
+
 button:hover {
-  border-color: #646cff;
+  background-color: #45a049; 
+  border-color: #ffffff; 
 }
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+
+button:focus {
+  outline: none;
+  box-shadow: 0 0 4px #ffffff;
 }
 
 @media (prefers-color-scheme: light) {
