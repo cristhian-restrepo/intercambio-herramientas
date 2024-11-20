@@ -1,28 +1,43 @@
 import React, { useState, useEffect } from "react";
 import { collection, addDoc, getDocs, deleteDoc, doc } from "firebase/firestore";
-import { db } from "./firebase/config"; 
+import { db } from "./firebase/config";
+import { getAuth } from "firebase/auth";
 import Header from "./components/Header";
 import Filters from "./components/Filters";
 import ToolList from "./components/ToolList";
 import AddToolForm from "./components/AddToolForm";
+import About from "./components/About";
+import Login from "./components/Login";
 import "./styles/App.css";
 
 const App = () => {
-  const [tools, setTools] = useState([]); 
-  const [search, setSearch] = useState(""); 
-  const [showForm, setShowForm] = useState(false); 
+  const [tools, setTools] = useState([]);
+  const [search, setSearch] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [showLogin, setShowLogin] = useState(false); // Controla la visibilidad del formulario de login
+  const [user, setUser] = useState(null);
+  const auth = getAuth();
 
-  // Función para cargar herramientas desde Firestore
+  const handleLogin = (loggedInUser) => {
+    setUser(loggedInUser);
+    setShowLogin(false); // Oculta el formulario de login después de iniciar sesión
+  };
+
+  const handleLogout = () => {
+    auth.signOut();
+    setUser(null);
+  };
+
   useEffect(() => {
     const fetchTools = async () => {
       try {
         const toolsCollection = collection(db, "tools");
         const snapshot = await getDocs(toolsCollection);
         const toolsList = snapshot.docs.map((doc) => ({
-          id: doc.id, 
+          id: doc.id,
           ...doc.data(),
         }));
-        setTools(toolsList); 
+        setTools(toolsList);
       } catch (error) {
         console.error("Error al cargar herramientas:", error);
       }
@@ -31,65 +46,114 @@ const App = () => {
     fetchTools();
   }, []);
 
-  // Función para agregar una nueva herramienta
   const handleAddTool = async (tool) => {
     try {
       const toolsCollection = collection(db, "tools");
-      const docRef = await addDoc(toolsCollection, tool); 
-      setTools([...tools, { id: docRef.id, ...tool }]); 
+      const docRef = await addDoc(toolsCollection, tool);
+      setTools([...tools, { id: docRef.id, ...tool }]);
     } catch (error) {
       console.error("Error al agregar herramienta:", error);
     }
   };
 
-  // Función para eliminar una herramienta
   const handleDeleteTool = async (id) => {
-    if (typeof id !== "string") {
-      console.error("ID inválido detectado:", id); 
-      return;
-    }
     try {
-      const docRef = doc(db, "tools", id); 
-      await deleteDoc(docRef); 
-      setTools(tools.filter((tool) => tool.id !== id)); 
-      console.log("Herramienta eliminada con éxito");
+      const docRef = doc(db, "tools", id);
+      await deleteDoc(docRef);
+      setTools(tools.filter((tool) => tool.id !== id));
     } catch (error) {
       console.error("Error al eliminar herramienta:", error);
     }
   };
 
-  // Función para filtrar herramientas con base en el texto de búsqueda
   const filteredTools = tools.filter((tool) =>
     tool.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Alterna la visibilidad del formulario
-  const toggleForm = () => {
-    setShowForm(!showForm);
-  };
+  const toggleForm = () => setShowForm(!showForm);
 
   return (
     <div>
       <Header />
       <Filters onSearch={setSearch} />
-      <div style={{ textAlign: "center", margin: "20px" }}>
-        <button
-          onClick={toggleForm}
-          style={{
-            marginBottom: "20px",
-            padding: "10px 20px",
-            backgroundColor: showForm ? "red" : "blue",
-            color: "white",
-            border: "none",
-            cursor: "pointer",
-            borderRadius: "5px",
-          }}
-        >
-          {showForm ? "Cerrar Formulario" : "Agregar Herramienta"}
-        </button>
-        {showForm && <AddToolForm onAdd={handleAddTool} />}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "10px 20px",
+        }}
+      >
+        {user ? (
+          <>
+            <div>
+              <p style={{ margin: 0, color: "#ccc" }}>
+                Bienvenido, <strong>{user.email}</strong>
+              </p>
+            </div>
+            <button
+              onClick={handleLogout}
+              style={{
+                backgroundColor: "#4caf50",
+                color: "white",
+                padding: "10px 20px",
+                borderRadius: "5px",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              Cerrar Sesión
+            </button>
+          </>
+        ) : (
+          <>
+            <p style={{ margin: 0, color: "#ccc" }}>
+              ¿Quieres agregar productos? Inicia sesión.
+            </p>
+            <button
+              onClick={() => setShowLogin(true)}
+              style={{
+                backgroundColor: "#4caf50",
+                color: "white",
+                padding: "10px 20px",
+                borderRadius: "5px",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              Iniciar Sesión
+            </button>
+          </>
+        )}
       </div>
-      <ToolList tools={filteredTools} onDelete={handleDeleteTool} />
+      {showLogin && <Login onLogin={handleLogin} />}
+      <div style={{ textAlign: "center", margin: "20px" }}>
+        {user ? (
+          <>
+            <button
+              onClick={toggleForm}
+              style={{
+                marginBottom: "20px",
+                padding: "10px 20px",
+                backgroundColor: showForm ? "red" : "blue",
+                color: "white",
+                border: "none",
+                cursor: "pointer",
+                borderRadius: "5px",
+              }}
+            >
+              {showForm ? "Cerrar Formulario" : "Agregar Herramienta"}
+            </button>
+            {showForm && <AddToolForm onAdd={handleAddTool} />}
+          </>
+        ) : (
+          <p style={{ color: "#ccc" }}>
+            Inicia sesión para agregar herramientas. Sin iniciar sesión, solo puedes explorar.
+          </p>
+        )}
+      </div>
+      <ToolList tools={filteredTools} onDelete={user ? handleDeleteTool : null} />
+      <About />
     </div>
   );
 };
