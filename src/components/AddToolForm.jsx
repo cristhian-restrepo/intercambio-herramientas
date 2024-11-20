@@ -1,84 +1,60 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 
 const AddToolForm = ({ onAdd }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [image, setImage] = useState(null);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const fileInputRef = useRef(); 
-
-  const uploadImageToImgbb = async (file) => {
-    const formData = new FormData();
-    formData.append("image", file);
-
-    try {
-      const response = await fetch(
-        `https://api.imgbb.com/1/upload?key=e3037cada480ddb135ca715afebcc39a`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-      const data = await response.json();
-      if (data.success) {
-        return data.data.url;
-      } else {
-        throw new Error("Error al subir la imagen");
-      }
-    } catch (error) {
-      console.error("Error al subir la imagen:", error);
-      setError("Hubo un problema al subir la imagen.");
-      return null;
-    }
-  };
+  const [category, setCategory] = useState("");
+  const [imageFile, setImageFile] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (name && description && category && imageFile) {
+      const formData = new FormData();
+      formData.append("image", imageFile);
 
-    if (!name.trim()) {
-      setError("El nombre de la herramienta no puede estar vacío.");
-      return;
-    }
-    if (!description.trim()) {
-      setError("La descripción no puede estar vacía.");
-      return;
-    }
-    if (!image) {
-      setError("Debe cargar una imagen.");
-      return;
-    }
+      try {
+        const response = await fetch("https://api.imgbb.com/1/upload?key=e3037cada480ddb135ca715afebcc39a", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await response.json();
 
-    setError("");
-    setLoading(true);
-    const imageUrl = await uploadImageToImgbb(image);
-
-    if (imageUrl) {
-      const newTool = {
-        name: name.trim(),
-        description: description.trim(),
-        imageUrl,
-      };
-      onAdd(newTool);
-      setName("");
-      setDescription("");
-      setImage(null);
-      fileInputRef.current.value = ""; 
-    }
-    setLoading(false);
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImage(file);
+        if (data.success) {
+          onAdd({
+            name,
+            description,
+            category,
+            imageUrl: data.data.url, // URL de la imagen cargada
+          });
+          setName("");
+          setDescription("");
+          setCategory("");
+          setImageFile(null);
+          alert("Herramienta agregada con éxito.");
+        } else {
+          alert("Error al subir la imagen. Inténtalo de nuevo.");
+        }
+      } catch (error) {
+        console.error("Error al subir la imagen:", error);
+        alert("Ocurrió un error al subir la imagen.");
+      }
+    } else {
+      alert("Por favor, completa todos los campos.");
     }
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      style={{ margin: "20px", textAlign: "center" }}
+      style={{
+        margin: "20px auto",
+        textAlign: "center",
+        padding: "20px",
+        backgroundColor: "rgba(0, 0, 0, 0.7)",
+        borderRadius: "10px",
+        maxWidth: "400px",
+        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)",
+      }}
     >
       <input
         type="text"
@@ -86,45 +62,69 @@ const AddToolForm = ({ onAdd }) => {
         value={name}
         onChange={(e) => setName(e.target.value)}
         style={{
-          padding: "10px",
-          width: "40%",
           marginBottom: "10px",
-          border: error && !name ? "1px solid red" : "1px solid #ccc",
+          padding: "10px",
+          width: "100%",
+          borderRadius: "5px",
+          border: "1px solid #ddd",
         }}
       />
-      <br />
       <textarea
         placeholder="Descripción de la herramienta"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         style={{
-          padding: "10px",
-          width: "40%",
-          height: "80px",
           marginBottom: "10px",
-          border: error && !description ? "1px solid red" : "1px solid #ccc",
+          padding: "10px",
+          width: "100%",
+          height: "100px",
+          borderRadius: "5px",
+          border: "1px solid #ddd",
+          resize: "none",
         }}
       ></textarea>
-      <br />
+      <select
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        style={{
+          marginBottom: "10px",
+          padding: "10px",
+          width: "100%",
+          borderRadius: "5px",
+          border: "1px solid #ddd",
+        }}
+      >
+        <option value="">Selecciona una categoría</option>
+        <option value="Jardinería">Jardinería</option>
+        <option value="Carpintería">Carpintería</option>
+        <option value="Mecánica">Mecánica</option>
+        <option value="Electricidad">Electricidad</option>
+        <option value="Otro">Otro</option>
+      </select>
       <input
         type="file"
         accept="image/*"
-        onChange={handleImageChange}
-        ref={fileInputRef} 
-        style={{ marginBottom: "10px" }}
+        onChange={(e) => setImageFile(e.target.files[0])}
+        style={{
+          marginBottom: "10px",
+          padding: "10px",
+          width: "100%",
+        }}
       />
-      <br />
-      {error && (
-        <p style={{ color: "red", marginTop: "5px", fontSize: "0.9rem" }}>
-          {error}
-        </p>
-      )}
       <button
-  type="submit"
-  className="add-tool-button" 
->
-  Agregar
-</button>
+        type="submit"
+        className="add-tool-button"
+        style={{
+          padding: "10px 20px",
+          backgroundColor: "green",
+          color: "white",
+          border: "none",
+          borderRadius: "5px",
+          cursor: "pointer",
+        }}
+      >
+        Agregar
+      </button>
     </form>
   );
 };

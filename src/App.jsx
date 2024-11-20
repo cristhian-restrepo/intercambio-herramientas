@@ -13,14 +13,16 @@ import "./styles/App.css";
 const App = () => {
   const [tools, setTools] = useState([]);
   const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [showLogin, setShowLogin] = useState(false); // Controla la visibilidad del formulario de login
+  const [view, setView] = useState("list"); // Estado para alternar vistas
   const [user, setUser] = useState(null);
+  const [showLogin, setShowLogin] = useState(false);
   const auth = getAuth();
 
   const handleLogin = (loggedInUser) => {
     setUser(loggedInUser);
-    setShowLogin(false); // Oculta el formulario de login después de iniciar sesión
+    setShowLogin(false);
   };
 
   const handleLogout = () => {
@@ -66,16 +68,26 @@ const App = () => {
     }
   };
 
-  const filteredTools = tools.filter((tool) =>
-    tool.name.toLowerCase().includes(search.toLowerCase())
+  const handleFilterCategory = (category) => {
+    setSelectedCategory(category);
+  };
+
+  const filteredTools = tools.filter(
+    (tool) =>
+      tool.name.toLowerCase().includes(search.toLowerCase()) &&
+      (selectedCategory === "" || tool.category === selectedCategory)
   );
 
   const toggleForm = () => setShowForm(!showForm);
 
+  const toggleView = () => {
+    setView(view === "list" ? "grid" : "list");
+  };
+
   return (
     <div>
       <Header />
-      <Filters onSearch={setSearch} />
+      <Filters onSearch={setSearch} onFilterCategory={handleFilterCategory} />
       <div
         style={{
           display: "flex",
@@ -128,14 +140,28 @@ const App = () => {
       </div>
       {showLogin && <Login onLogin={handleLogin} />}
       <div style={{ textAlign: "center", margin: "20px" }}>
-        {user ? (
+        <button
+          onClick={toggleView}
+          style={{
+            marginBottom: "20px",
+            padding: "10px 20px",
+            backgroundColor: "blue",
+            color: "white",
+            border: "none",
+            cursor: "pointer",
+            borderRadius: "5px",
+          }}
+        >
+          Cambiar a {view === "list" ? "vista de Cuadros" : "vista de Lista"}
+        </button>
+        {user && (
           <>
             <button
               onClick={toggleForm}
               style={{
                 marginBottom: "20px",
                 padding: "10px 20px",
-                backgroundColor: showForm ? "red" : "blue",
+                backgroundColor: showForm ? "red" : "green",
                 color: "white",
                 border: "none",
                 cursor: "pointer",
@@ -146,13 +172,13 @@ const App = () => {
             </button>
             {showForm && <AddToolForm onAdd={handleAddTool} />}
           </>
-        ) : (
-          <p style={{ color: "#ccc" }}>
-            Inicia sesión para agregar herramientas. Sin iniciar sesión, solo puedes explorar.
-          </p>
         )}
       </div>
-      <ToolList tools={filteredTools} onDelete={user ? handleDeleteTool : null} />
+      <ToolList
+        tools={filteredTools}
+        onDelete={user ? handleDeleteTool : null}
+        view={view} // Pasamos el estado de vista
+      />
       <About />
     </div>
   );
